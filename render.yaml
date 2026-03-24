@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: todo-dashboard
+    env: node
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
