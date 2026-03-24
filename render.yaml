@@ -2,8 +2,11 @@ services:
   - type: web
     name: todo-dashboard
     env: node
-    startCommand: npm start
     plan: free
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
