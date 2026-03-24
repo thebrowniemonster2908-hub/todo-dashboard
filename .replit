@@ -1,0 +1,18 @@
+run = "npm start"
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-23_11"
+
+[unitTest]
+language = "nodejs"
+
+[languages.javascript]
+pattern = "**/*.{js,jsx,ts,tsx}"
+
+[languages.javascript.languageServer]
+start = ["deno", "lsp"]
+
+[env]
+PORT = "3000"
+NODE_ENV = "production"
