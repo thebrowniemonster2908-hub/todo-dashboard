@@ -1,14 +1,19 @@
 {
   "buildCommand": "npm install",
   "outputDirectory": "public",
-  "env": {
-    "NODE_ENV": "production",
-    "PORT": "3000"
-  },
   "functions": {
-    "server.js": {
-      "memory": 1024,
-      "maxDuration": 60
+    "api/**/*.js": {
+      "runtime": "nodejs24.x"
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 }
