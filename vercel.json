@@ -1,6 +1,14 @@
 {
-  "version": 2,
-  "public": true,
-  "buildCommand": "npm run build || true",
-  "outputDirectory": "public"
+  "buildCommand": "npm install",
+  "outputDirectory": "public",
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3000"
+  },
+  "functions": {
+    "server.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
 }
