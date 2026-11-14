@@ -1,5 +1,5 @@
 // API Base URL
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = '/api';
 
 // DOM Elements
 const taskForm = document.getElementById('addTaskForm');
@@ -99,7 +99,7 @@ async function loadTasks() {
 
 async function updateTask(id, updates) {
   try {
-    const response = await fetch(`${API_BASE}/tasks/${id}`, {
+    const response = await fetch(`${API_BASE}/tasks/${encodeURIComponent(id)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates)
@@ -119,7 +119,7 @@ async function deleteTask(id) {
   if (!confirm('Delete this task?')) return;
 
   try {
-    const response = await fetch(`${API_BASE}/tasks/${id}`, {
+    const response = await fetch(`${API_BASE}/tasks/${encodeURIComponent(id)}`, {
       method: 'DELETE'
     });
 
@@ -171,6 +171,7 @@ function renderTasks() {
 }
 
 function createTaskCard(task) {
+  const priority = ['low', 'medium', 'high', 'critical'].includes(task.priority) ? task.priority : 'medium';
   const card = document.createElement('div');
   card.className = `task-card ${task.completed ? 'completed' : ''} ${editingId === task.id ? 'editing' : ''}`;
 
@@ -186,7 +187,7 @@ function createTaskCard(task) {
     medium: '🟡',
     high: '🔴',
     critical: '⚫'
-  }[task.priority] || '🟡';
+  }[priority] || '🟡';
 
   const completedAtText = task.completedAt ?
     `Completed: ${new Date(task.completedAt).toLocaleDateString('en-US', {
@@ -203,14 +204,14 @@ function createTaskCard(task) {
           type="checkbox"
           class="task-checkbox"
           ${task.completed ? 'checked' : ''}
-          onchange="toggleTaskCompletion('${task.id}', this.checked)"
+          
         />
         <div class="task-info">
           <div class="task-title">${escapeHtml(task.title)}</div>
           ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
           <div class="task-meta">
-            <span class="priority-badge priority-${task.priority}">
-              ${priorityEmoji} ${capitalizeFirst(task.priority)}
+            <span class="priority-badge priority-${priority}">
+              ${priorityEmoji} ${capitalizeFirst(priority)}
             </span>
             <span class="task-date">Created: ${createdDate}</span>
             ${completedAtText ? `<span class="task-date">${completedAtText}</span>` : ''}
@@ -218,8 +219,8 @@ function createTaskCard(task) {
         </div>
       </div>
       <div class="task-actions">
-        <button class="btn btn-edit" onclick="startEditing('${task.id}')">✏️ Edit</button>
-        <button class="btn btn-danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
+        <button class="btn btn-edit" >✏️ Edit</button>
+        <button class="btn btn-danger" >🗑️ Delete</button>
       </div>
     </div>
 
@@ -245,13 +246,18 @@ function createTaskCard(task) {
           </select>
         </div>
         <div class="edit-form-actions">
-          <button class="btn btn-success" onclick="saveEdit('${task.id}')">✅ Save</button>
-          <button class="btn btn-secondary" onclick="cancelEdit()">❌ Cancel</button>
+          <button class="btn btn-success" >✅ Save</button>
+          <button class="btn btn-secondary" >❌ Cancel</button>
         </div>
       </div>
     </div>
   `;
 
+  card.querySelector('.task-checkbox').addEventListener('change', event => toggleTaskCompletion(task.id, event.target.checked));
+  card.querySelector('.btn-edit').addEventListener('click', () => startEditing(task.id));
+  card.querySelector('.btn-danger').addEventListener('click', () => deleteTask(task.id));
+  card.querySelector('.btn-success').addEventListener('click', () => saveEdit(task.id));
+  card.querySelector('.btn-secondary').addEventListener('click', cancelEdit);
   return card;
 }
 
@@ -284,7 +290,7 @@ function renderLogs(logsText) {
 
     // Parse and format the timestamp
     const timestampMatch = line.match(/\[(.*?)\]/);
-    let content = line;
+    let content = escapeHtml(line);
 
     if (timestampMatch) {
       const timestamp = new Date(timestampMatch[1]);
@@ -330,7 +336,7 @@ function escapeHtml(text) {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return text.replace(/[&<>"']/g, m => map[m]);
+  return String(text ?? '').replace(/[&<>"']/g, m => map[m]);
 }
 
 function startEditing(id) {

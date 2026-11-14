@@ -1,0 +1,11 @@
+.env*
+.claude/**
+.codex/**
+.agents/**
+node_modules/**
+.git/**
+*.log
+.local-operator-security/**
+supabase/**
+test/**
+tests/**
